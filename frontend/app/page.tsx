@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
+import ChordDiagram from '../components/chorddiagram';
 
-// DeleteChordでidを使用するため、型定義にidを追加しました
 type Chord = {
     id: number;
     chord: string;
@@ -33,7 +33,6 @@ export default function Home() {
     };
 
     const PostChord = async () => {
-        // 簡単なバリデーション
         if (!chord || !fingering) return;
 
         try {
@@ -51,11 +50,10 @@ export default function Home() {
             const data = await res.json();
             console.log('Created:', data);
 
-            // フォームのリセット
+            // リセット
             setChord('');
             setFingering('');
             setPosition(0);
-
             GetChords();
         } catch (error) {
             console.error('Error posting chord:', error);
@@ -77,79 +75,52 @@ export default function Home() {
     };
 
     return (
-        <main className="min-h-screen p-8 bg-gray-50">
-            <div className="max-w-2xl mx-auto">
-                <h1 className="text-3xl font-bold mb-8 text-center text-gray-800">
-                    ギターコード登録ツール
-                </h1>
-
-                <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-                        <input
-                            type="text"
-                            placeholder="Chord Name (e.g. C)"
-                            className="border p-2 rounded w-full"
-                            value={chord}
-                            onChange={(e) => setChord(e.target.value)}
+        <main className="p-8">
+            <h1 className="text-2xl font-bold mb-4">Chord Manager</h1>
+            
+            {/* Input Form */}
+            <div className="flex gap-4 mb-8 p-4 bg-gray-100 rounded">
+                <input
+                    className="border p-2 rounded"
+                    placeholder="Chord Name (e.g. C)"
+                    value={chord}
+                    onChange={(e) => setChord(e.target.value)}
+                />
+                <input
+                    className="border p-2 rounded"
+                    placeholder="Fingering (e.g. x32010)"
+                    value={fingering}
+                    onChange={(e) => setFingering(e.target.value)}
+                />
+                <input
+                    type="number"
+                    className="border p-2 rounded w-24"
+                    placeholder="Position"
+                    value={position}
+                    onChange={(e) => setPosition(Number(e.target.value))}
+                />
+                <button 
+                    onClick={PostChord}
+                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                >
+                    Add
+                </button>
+            </div>
+            {/* List */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {chords.map((c) => (
+                    <div key={c.id} className="border p-4 rounded shadow-sm hover:shadow-md flex flex-col items-center">
+                        <h2 className="text-xl font-bold mb-2">{c.chord}</h2>
+                        {/* ここでSVGコンポーネントを使用 */}
+                        <ChordDiagram
+                            fingering={c.fingering}
+                            position={c.position}
                         />
-                        <input
-                            type="text"
-                            placeholder="Fingering (e.g. x32010)"
-                            className="border p-2 rounded w-full"
-                            value={fingering}
-                            onChange={(e) => setFingering(e.target.value)}
-                        />
-                        <input
-                            type="number"
-                            placeholder="Position"
-                            className="border p-2 rounded w-full"
-                            value={position}
-                            onChange={(e) => setPosition(Number(e.target.value))}
-                        />
-                        <button
-                            onClick={PostChord}
-                            className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition-colors"
-                        >
-                            Add Chord
-                        </button>
+                        <div className="text-sm text-gray-500 mt-2">
+                            {c.fingering} / pos: {c.position}
+                        </div>
                     </div>
-                </div>
-
-                <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                    <h2 className="text-xl font-semibold p-4 border-b bg-gray-100">
-                        Registered Chords
-                    </h2>
-                    <ul>
-                        {chords.length === 0 ? (
-                            <li className="p-4 text-gray-500 text-center">No chords registered yet.</li>
-                        ) : (
-                            chords.map((item) => (
-                                <li
-                                    key={item.id}
-                                    className="border-b last:border-b-0 p-4 flex justify-between items-center hover:bg-gray-50"
-                                >
-                                    <div>
-                                        <span className="text-lg font-bold mr-4 w-16 inline-block">
-                                            {item.chord}
-                                        </span>
-                                        <span className="text-gray-600 mr-4 font-mono">
-                                            {item.fingering}
-                                        </span>
-                                        <span className="text-xs bg-gray-200 px-2 py-1 rounded text-gray-700">
-                                            Pos: {item.position}
-                                        </span>
-                                    </div>
-                                    <button
-                                        onClick={() => DeleteChord(item.id)}
-                                        className="text-red-500 hover:text-red-700 text-sm border border-red-200 px-3 py-1 rounded hover:bg-red-50 transition-colors"
-                                    >
-                                        Delete
-                                    </button>
-                                </li>
-                            ))
-                        )}
-                    </ul>
-                </div>
+                ))}
             </div>
         </main>
     );
