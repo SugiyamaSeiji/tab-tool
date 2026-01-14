@@ -1,10 +1,10 @@
 from sqlalchemy import Column, Integer, String, LargeBinary
 from app.settings import Base
 
-class Code(Base):
-    __tablename__ = 'codes'
+class Chord(Base):
+    __tablename__ = 'chords'
     
     id = Column(Integer, primary_key=True, index=True)
-    code = Column(String, index=True)
+    chord = Column(String, index=True)
     fingering = Column(String, index=True)
     position = Column(Integer, index=True)

@@ -2,8 +2,8 @@ from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List
-from app.models import Code
-from app.schemas import CodeSchema, CodeCreate
+from app.models import Chord
+from app.schemas import ChordSchema, ChordCreate
 from app.settings import SessionLocal, engine, Base
 import uvicorn
 
@@ -30,52 +30,50 @@ def get_db():
 def root():
     return {"message": "Login successful."}
 
-@app.post("/codes/", response_model=CodeSchema)
-def create_code(code: CodeCreate, db: Session = Depends(get_db)):
-    db_code = db.query(Code).filter(Code.code == code.code).first()
-    if db_code:
-        raise HTTPException(status_code=400, detail="Code already registered")
-    new_code = Code(code=code.code, fingering=code.fingering, position=code.position)
-    db.add(new_code)
+@app.post("/chords/", response_model=ChordSchema)
+def create_chord(chord: ChordCreate, db: Session = Depends(get_db)):
+    db_chord = db.query(Chord).filter(Chord.chord == chord.chord).first()
+    if db_chord:
+        raise HTTPException(status_code=400, detail="Chord already registered")
+    new_chord = Chord(chord=chord.chord, fingering=chord.fingering, position=chord.position)
+    db.add(new_chord)
     db.commit()
-    db.refresh(new_code)
+    db.refresh(new_chord)
 
-    return new_code
+    return new_chord    
 
 # データベースの一覧取得
-@app.get("/codes/", response_model=List[CodeSchema])
-def read_codes(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    codes = db.query(Code).offset(skip).limit(limit).all()
-    return codes
+@app.get("/chords/", response_model=List[ChordSchema])
+def read_chords(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    chords = db.query(Chord).offset(skip).limit(limit).all()
+    return chords
 
 # コードの読み取り
-@app.get("/codes/{code_id}", response_model=CodeSchema)
-def read_code(code_id: int, db: Session = Depends(get_db)):
-    db_code = db.query(Code).filter(Code.id == code_id).first()
-    if db_code is None:
-        raise HTTPException(status_code=404, detail="Code not found")
-    return db_code
-
+@app.get("/chords/{chord_id}", response_model=ChordSchema)
+def read_chord(chord_id: int, db: Session = Depends(get_db)):
+    db_chord = db.query(Chord).filter(Chord.id == chord_id).first()
+    if db_chord is None:
+        raise HTTPException(status_code=404, detail="Chord not found")
+    return db_chord
 # コードの更新
-@app.put("/codes/{code_id}", response_model=CodeSchema)
-def update_code(code_id: int, code: CodeCreate, db: Session = Depends(get_db)):
-    db_code = db.query(Code).filter(Code.id == code_id).first()
-    if db_code is None:
-        raise HTTPException(status_code=404, detail="Code not found")
-    db_code.code = code.code
-    db_code.fingering = code.fingering
-    db_code.position = code.position
+@app.put("/chords/{chord_id}", response_model=ChordSchema)
+def update_chord(chord_id: int, chord: ChordCreate, db: Session = Depends(get_db)):
+    db_chord = db.query(Chord).filter(Chord.id == chord_id).first()
+    if db_chord is None:
+        raise HTTPException(status_code=404, detail="Chord not found")
+    db_chord.chord = chord.chord
+    db_chord.fingering = chord.fingering
+    db_chord.position = chord.position
     db.commit()
-    db.refresh(db_code)
-
+    db.refresh(db_chord)
     return {"message": "success"}
 
 # コードの削除
-@app.delete("/codes/{code_id}", status_code=204)
-def delete_code(code_id: int, db: Session = Depends(get_db)):
-    db_code = db.query(Code).filter(Code.id == code_id).first()
-    if db_code is None:
-        raise HTTPException(status_code=404, detail="Code not found")
-    db.delete(db_code)
+@app.delete("/chords/{chord_id}", status_code=204)
+def delete_chord(chord_id: int, db: Session = Depends(get_db)):
+    db_chord = db.query(Chord).filter(Chord.id == chord_id).first()
+    if db_chord is None:
+        raise HTTPException(status_code=404, detail="Chord not found")
+    db.delete(db_chord)
     db.commit()
     return {"message": "success"}

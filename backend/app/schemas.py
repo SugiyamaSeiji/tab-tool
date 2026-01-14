@@ -1,13 +1,13 @@
 from pydantic import BaseModel
 
-class CodeCreate(BaseModel):
-    code: str
+class ChordCreate(BaseModel):
+    chord: str
     fingering: str
     position: int
 
-class CodeSchema(BaseModel):
+class ChordSchema(BaseModel):
     id: int
-    code: str
+    chord: str
     fingering: str
     position: int
 
